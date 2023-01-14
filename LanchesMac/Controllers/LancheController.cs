@@ -17,16 +17,34 @@ namespace LanchesMac.Controllers
 
         public IActionResult List(string categoria)
         {
-            //var lanches = _lancheRepository.Lanches;
-            //return View(lanches);
+            IEnumerable<Lanche> lanches;
+            string categoriaAtual = string.Empty;
+
+            if (string.IsNullOrEmpty(categoria))
+            {
+                lanches = _lancheRepository.Lanches.OrderBy(l => l.LancheId);
+                categoriaAtual = "Todos os lanches";
+            } 
+            else
+            {
+                lanches = _lancheRepository.Lanches.Where(l => l.Categoria.CategoriaNome.Equals(categoria, StringComparison.OrdinalIgnoreCase))
+                    .OrderBy(l => l.Nome);
+                categoriaAtual = categoria;
+            }
 
             var lancheListViewModel = new LancheListViewModel()
             {
-                Lanches = _lancheRepository.Lanches,
-                CategoriaAtual = "Categoria Atual",
+                Lanches = lanches,
+                CategoriaAtual = categoriaAtual
             };
 
             return View(lancheListViewModel);
+        }
+
+        public IActionResult Details(int lancheId)
+        {
+            var lanche = _lancheRepository.Lanches.FirstOrDefault(l => l.LancheId == lancheId);
+            return View(lanche);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
